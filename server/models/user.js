@@ -28,7 +28,7 @@ const userSchema = new mongoose.Schema({
             "student",
             "teacher"
         ],
-        default:"student"
+        
     }
 
 
