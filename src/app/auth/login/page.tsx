@@ -1,37 +1,118 @@
 // "use-client();"
 "use client";
-
+import axios from 'axios';
 import React from 'react'
-// icon importing from react lucid 
+import { useRouter } from 'next/navigation';
 import {  Eye,EyeOff} from "lucide-react";
 
+import { motion } from "framer-motion";
+
+
 // icons inported from react icon 
-import { FaGithub,  } from "react-icons/fa";
+import { FaGithub, FaExclamationTriangle } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
 
 import { useState } from 'react';
 
 function page() {
 
-    // sign in option toggler state
-    const [signInOption, setSignInOption] = React.useState<"student" | "teacher" | "admin" | string>("student");
-
+     const router = useRouter();
     // password visibility toggler state
     const [isPasswordVisible, setIsPasswordVisible] = useState(false);
 
-    // form on submit handler temperary function
-    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
-        console.log("Form submitted");
+    const [error, setError] = useState("");
+
+    const [ loginData, setLoginData] = useState({
+      email : "",
+      password : ""
+    });
+
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      const { name, value } = e.target;
+      setLoginData({
+        ...loginData,
+        [name]: value
+      });
+    }
+
+
 
         // handle form submission logic here, such as validating input, sending data to the server, etc.
+          const handleSumbmit = async (e: React.FormEvent<HTMLFormElement>) => {
+            e.preventDefault();
+
+            
+              
+            try{
+              const response = await axios.post("http://localhost:8080/api/login", {
+                email : loginData.email,
+                password : loginData.password
+              });
+
+              // storing jwt token in local storage
+              localStorage.setItem("token",response.data.token);
+
+              // navigating to dashboed according to rule 
+                router.push("/student/Dashboard");
+
+
+             
+            }
+            catch(error : any){
+              setError(error.response?.data?.message || "An error occurred while logging in."
+              );
+              console.error("Error occurred while logging in:", error);
+            }
+
     }
 
   return (
    <div className='flex items-center justify-between gap-3 w-full h-full md:px-25  py-5 px-3 '>
 
     {/* left side - login form  */}
-    <form action="" onSubmit={handleSubmit} className=' px-7 py-5 flex flex-col gap-7 rounded-2xl md:w-[50%] w-fit transition-all ease-in-out duration-300 flex-1 h-full ' >
+    <form action="" onSubmit={handleSumbmit} className=' px-7 py-5 flex flex-col gap-7 rounded-2xl md:w-[50%] w-fit transition-all ease-in-out duration-300 flex-1 h-full ' >
+
+  {/* error message */}
+        {error && (
+          <motion.div
+
+            initial={{
+              opacity: 0,
+              y: -15,
+              scale: 0.95
+            }}
+
+            animate={{
+              opacity: 1,
+              y: 0,
+              scale: 1
+            }}
+
+            exit={{
+              opacity: 0,
+              y: -15,
+              scale: 0.95
+            }}
+
+            transition={{
+              duration: 0.3,
+              ease: "easeInOut"
+            }}
+
+            className='bg-red-50 border border-red-200 text-red-500
+    w-fit px-5 py-3 rounded-2xl flex gap-3
+    justify-center items-center shadow-sm'
+          >
+
+            <FaExclamationTriangle className='text-red-500 text-lg' />
+
+            <p className='text-sm font-medium'>
+              {error}
+            </p>
+
+          </motion.div>
+        )}
 
         {/* heading and subheading for the form  */}
       <div className='flex flex-col gap-2'>
@@ -41,12 +122,12 @@ function page() {
 
       {/* login input fields */}
       <label htmlFor="email" className='text-neutral-500 flex flex-col gap-2'>Email address
-      <input type="email" id="email" placeholder='you@gmail.com' className='w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#407cff]' required />
+      <input type="email" id="email" placeholder='you@gmail.com' name='email' value={loginData.email} className='w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#407cff]' required  onChange={handleChange}/>
         </label>
 
       <label htmlFor="password" className='text-neutral-500 flex flex-col gap-2'>Password
       <div className='relative'>
-        <input type={isPasswordVisible ? "text" : "password"} id="password" placeholder='Enter your password' className='w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#407cff]' required />
+        <input type={isPasswordVisible ? "text" : "password"} id="password" placeholder='Enter your password' name='password' value={loginData.password} className='w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#407cff]' required onChange={handleChange}/>
         
         <button type="button" onClick={() => setIsPasswordVisible(!isPasswordVisible)} className='absolute right-3 top-3 text-gray-500'>
           {isPasswordVisible ? <EyeOff className='w-4 h-4' /> : <Eye className='w-4 h-4' />}

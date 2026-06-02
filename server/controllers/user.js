@@ -1,15 +1,17 @@
 const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken");
+
 const {generateToken} = require("../utils/generateToken")
 const User = require("../models/user");
-const { generateKey } = require("node:crypto");
+const OTP = require("../models/otp");
+
 const validator = require("validator");
 
 
-// user registration(sign up) controll  ***need to improve validations*** ....
+// user registration(sign up) controll  
 exports.registerUser = async (req,res) => {
     try{
-        const {username,email,password,role} = req.body;
+        const {username,email,password,role,otp} = req.body;
+        
 
         const emailExist = await User.findOne({email});
         
@@ -29,6 +31,10 @@ exports.registerUser = async (req,res) => {
         };
 
         // email vaildation 
+        
+        if(!email){
+            return res.status(400).json({message: "Email is required!"});
+        }
                 if(!validator.isEmail(email)){
                     return res.status(400).json({
                         message : "Invalid email format "
@@ -40,10 +46,6 @@ exports.registerUser = async (req,res) => {
                 message : "Email already registerd by another user!"
             })
         };
-        
-        if(!email){
-            return res.status(400).json({message: "Email is required!"});
-        }
         
         // password validation 
         if(!password){
@@ -58,28 +60,58 @@ exports.registerUser = async (req,res) => {
             })
         }
         
-   
+    //   validate otp ----------------------
+                const otpRecord = 
+                await OTP.findOne({email});
+
+                if(!otpRecord){
+                    return res.status(400).json({
+                        message : "Please request an OTP!"
+                    });
+                }
+
+                if(otpRecord.otp !== otp){
+                    return res.status(400).json({
+                        message : "Invalid OTP"
+                    });
+                }
+                if(otpRecord.expiresAt < Date.now()){ 
+                    return res.status(404).jsom({
+                        message : "OTP expired"
+                    })
+                }
+
 
       
 
 
         const hashedPassword = await bcrypt.hash(password ,10);
 
-
+            const status = role === "teacher" ? "pending" : "approved";
 
         // create user
-        const newUser = await User.create({username,email,password : hashedPassword,role});
+        const newUser = await User.create({username,email,password : hashedPassword,role,status});
 
         const userResponse = {
             _id: newUser._id,
             username: newUser.username,
             email: newUser.email,
-            role: newUser.role 
+            role: newUser.role,
+            status: newUser.status
         }
 
-        res.status(200).json({
+        if(role === "teacher"){
+            return res.status(201).json({
+                message : "Teacher registration successful! Your account is pending for approval.",
+                userResponse
+            });
+        }
+        
+        await OTP.deleteOne({email});
+        
+        res.status(201).json({
             message : "User registerd successfully!",
-            userResponse
+            userResponse,
         });
     }catch(error){
         res.status(500).json({message : "Server error!", error : error.message})
@@ -118,7 +150,13 @@ exports.loginUser = async (req,res) => {
         return res.status(400).json({
             message : "Invalid Credentials"
         });
-    }
+    };
+
+    if(user.role === "teacher" && user.status !== "approved"){
+        return res.status(403).json({
+            message : "Your account is pending for approval. Please wait for admin approval."
+        });
+    };
 
     // token creation 
    const token = generateToken(user._id);
@@ -127,6 +165,13 @@ exports.loginUser = async (req,res) => {
 
     res.json({
         token,
+        user : {
+            id: user._id,
+            username: user.username,
+            email: user.email,
+            role: user.role,
+            status: user.status
+        },
         message : "Login successful"
     })
 
@@ -137,25 +182,16 @@ catch(error){
 };
 
 
-// get user temp
+exports.getme = async (req,res) => {
+    try {
+        const user = await User.findById(
+            req.user.id
+        ).select("-password");
 
-exports.getUser = async (req, res) => {
-  try {
-    const user = await User.findById(
-      req.params.id
-    );
-
-    if (!user) {
-      return res.status(404).json({
-        message: "User not found"
-      });
+        res.status(200).json(user)
+    }catch(error){
+        res.status(500).json({
+                error : error.message
+        })
     }
-
-    res.status(200).json(user);
-
-  } catch (error) {
-    res.status(500).json({
-      error: error.message
-    });
-  }
-};
+}

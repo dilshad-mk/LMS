@@ -3,7 +3,7 @@ import React from 'react'
 
 import axios from "axios"
 
-import { easeInOut, motion } from 'motion/react';
+import { motion } from 'motion/react';
 
 import { useRouter } from 'next/navigation';
 
@@ -27,22 +27,51 @@ function page() {
     email: "",
     password: "",
     confirmPassword: "",
-    role: ""
+    role: "",
+    otp: ""
   });
 
   // error message state -------------------
   const [error, setError] = useState("");
 
+  // otp send indigation 
+  const [isOtpSend,setIsOtpSend] = useState("Get OTP")
+
   // router initializing state --------------
   const router = useRouter();
 
   //lodaing state ----------------------------
-  const [isLoading,setIsLoading] = useState(false);
+  // const [isLoading,setIsLoading] = useState(false);
 
   // password visibility toggler state
   const [isPasswordVisible, setIsPasswordVisible] = React.useState(false);
 
-  // submit handle function ----------api  reqest and response etc-----------------
+// otp get ---------------------------------------------------------------
+    const handleSendOTP = async () => {
+      setIsOtpSend("Sending OTP.....");
+  try {
+
+    const response = await axios.post(
+
+
+      "http://localhost:8080/api/sendotp",
+      {
+        email: formData.email
+      }
+    );
+
+    setIsOtpSend("OTP Sended Successfully!");
+
+  } catch (error: any) {
+
+    setError(
+      error.response?.data?.message
+    );
+  }
+};
+
+
+  //  handle  submit function ----------api  reqest and response etc-----------------
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
@@ -50,7 +79,7 @@ function page() {
 
     // confirm password validation
     if (formData.password !== formData.confirmPassword) {
-      setError("Passwords do not match!");
+      setError("Passwords dose not match!");
       return;
     }
 
@@ -62,30 +91,32 @@ function page() {
           username: formData.username,
           email: formData.email,
           password: formData.password,
-          role: formData.role
+          role: formData.role,
+          otp: formData.otp
         });
 
-          setIsLoading(true);
+          // setIsLoading(true);
 
 
-      // alert("sign up finished");
+    
 
       setFormData({
         username: "",
         email: "",
         role: "student",
         password: "",
-        confirmPassword: ""
+        confirmPassword: "",
+        otp:""
 
       });
 
 
-   setTimeout(() => {
-    setIsLoading(false);
-    // naviagtion to login 
-       router.push("/auth/login")
-   }, 2000);
-
+  //  setTimeout(() => {
+  //   setIsLoading(false);
+  // }, 2000);
+  
+  // naviagtion to login 
+     router.push("/auth/login")
     
     }
     catch (error: any) {
@@ -100,17 +131,17 @@ function page() {
   return (
     <div className='flex items-center justify-between gap-3 w-full h-full md:px-25  py-5 px-3 relative'>
 
-  {isLoading && (
+  {/* {isLoading && (
     <div className='flex justify-center items-center absolute left-0 w-full h-full self-center backdrop-blur-xl z-50'>
       <AiOutlineLoading3Quarters className="animate-spin text-3xl text-center text-red-600 " />
     </div>
-  )}
+  )} */}
 
       {/* left side - login form  */}
       <form action="" onSubmit={handleSubmit} className=' px-7 py-5 flex flex-col gap-3 rounded-2xl md:w-[50%] w-fit transition-all ease-in-out duration-300 flex-1 h-[100%] ' >
 
 
-        {/* error message  goes here----------------*/}
+   
         {/* error message */}
         {error && (
           <motion.div
@@ -135,7 +166,7 @@ function page() {
 
             transition={{
               duration: 0.3,
-              ease: easeInOut
+              ease: "easeInOut"
             }}
 
             className='bg-red-50 border border-red-200 text-red-500
@@ -205,6 +236,23 @@ function page() {
             }
             className='w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#ff715e]' required />
         </label>
+
+
+{/* email verification  */}
+       
+         <label htmlFor="otp" className='text-neutral-500 flex flex-col gap-2'>Verify Email address
+         <div className='flex gap-3'>
+           <input type="number" id="otp" placeholder='Enter verification code'
+            value={formData.otp}
+            onChange={(e) =>
+              setFormData({ ...formData, otp: e.target.value })
+            }
+            className='flex-1 w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#ff715e]' required />
+        <button type='button' className='bg-[#ff715e] flex-1 px-4 py-2 rounded-lg text-white hover:bg-[#ff715eb9] duration-300 ease-in-out transition-colors' onClick={handleSendOTP}>{isOtpSend}</button>
+         </div>
+        </label>
+
+       
 
         <label htmlFor="password" className='text-neutral-500 flex flex-col gap-2'>Password
           <div className='relative'>
