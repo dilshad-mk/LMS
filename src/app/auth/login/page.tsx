@@ -34,6 +34,7 @@ function page() {
         ...loginData,
         [name]: value
       });
+      setError("")
     }
 
 
@@ -49,12 +50,22 @@ function page() {
                 email : loginData.email,
                 password : loginData.password
               });
+              
 
               // storing jwt token in local storage
               localStorage.setItem("token",response.data.token);
 
               // navigating to dashboed according to rule 
-                router.push("/student/Dashboard");
+            if(response.data.user.role === "student"){
+                  router.push("/student/Dashboard");
+            }
+            if(response.data.user.role === "teacher"){
+                  router.push("/teacher/Dashboard");
+            }
+            if(response.data.user.role === "admin"){
+                  router.push("/admin/Dashboard");
+                  console.log("admin logined")
+            }
 
 
              

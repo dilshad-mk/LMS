@@ -60,7 +60,7 @@ function page() {
       }
     );
 
-    setIsOtpSend("OTP Sended Successfully!");
+    setIsOtpSend("OTP Send Successfully!");
 
   } catch (error: any) {
 

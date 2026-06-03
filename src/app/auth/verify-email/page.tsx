@@ -1,7 +1,8 @@
 "use client";
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { OTPInput, SlotProps } from 'input-otp';
 import { useRouter } from 'next/navigation';
+import axios from 'axios';
 
 function Slot(props: SlotProps) {
   return (
@@ -25,13 +26,38 @@ function Slot(props: SlotProps) {
 function VerifyEmail() {
   const [otp, setOtp] = useState('');
   const router = useRouter();
+  const [email,setEmail] = useState("")
+const [error, setError] = useState("") 
 
-  const handleSubmit = (e: React.FormEvent) => {
+useEffect(() => {
+  const storedEmail = localStorage.getItem("email");
+
+  if (!storedEmail) {
+    router.push("/auth/forgot-password");
+    return;
+  }
+
+  setEmail(storedEmail);
+}, []);
+
+  const handleSubmit = async(e: React.FormEvent) => {
     e.preventDefault();
     if (otp.length === 6) {
       console.log('OTP submitted:', otp);
       //  verification logic here
-      router.push('/auth/reset-password')
+      try{
+        const response = await axios.post("http://localhost:8080/api/pswdOtp", {
+          email,
+          otp
+        })
+
+        router.push('/auth/reset-password')
+        localStorage.removeItem("email")
+      }
+      catch(error :any){
+      setError(error.response?.data?.message)
+      
+    }
 
     }
   };
@@ -83,7 +109,7 @@ function VerifyEmail() {
               }
             `}
           >
-            Verify
+            {error ? error : "Verify"}
           </button>
         </form>
 

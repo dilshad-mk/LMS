@@ -1,7 +1,7 @@
 const OTP = require("../models/otp");
 const sendEmail = require("../utils/sendEmail");
 
-exports.sendOTP = async (req, res) => {
+exports.signUpOTPSend = async (req, res) => {
   try {
     const { email } = req.body;
 
@@ -15,7 +15,8 @@ exports.sendOTP = async (req, res) => {
       email,
       otp,
       expiresAt:
-        Date.now() + 10 * 60 * 1000
+        Date.now() + 10 * 60 * 1000,
+      purpose: "signup" 
     });
 
     await sendEmail(email, otp);

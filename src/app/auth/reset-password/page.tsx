@@ -3,6 +3,9 @@ import React, { useEffect, useState } from 'react';
 import { Eye, EyeOff } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'motion/react'; 
+import axios from 'axios';
+import {FaExclamationTriangle } from "react-icons/fa";
+
 
 function page() {
   const router = useRouter();
@@ -10,42 +13,57 @@ function page() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [error,setError] = useState("")
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    // if (password.length < 8) {
-    //   alert('Password must be at least 8 characters');
-    //   return;
-    // }
-    // if (password !== confirmPassword) {
-    //   alert('Passwords do not match');
-    //   return;
-    // }
-    setLoading(true);
+  useEffect(() => {
+  const token = localStorage.getItem("resetToken");
+
+  if (!token) {
+    router.replace("/auth/login");
+  }
+}, [router]);
+
+ const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  e.preventDefault();
+
+  if (password !== confirmPassword) {
+    setError("password does not match");
+    return;
+  }
 
   try {
+    setLoading(true);
 
-    // fake api delay
-    await new Promise((resolve) =>
-      setTimeout(resolve, 3000)
+    const token = localStorage.getItem("resetToken");
+
+    if (!token) {
+      router.push("/auth/login");
+      return;
+    }
+
+    await axios.post(
+      "http://localhost:8080/api-protected/reset-pswd",
+      { password },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
     );
 
+    localStorage.removeItem("resetToken");
     router.push("/auth/login");
 
-  } catch (error) {
-
-    console.log(error);
-
+  } catch (error: any) {
+    setError(
+      error.response?.data?.message ||
+      "Something went wrong"
+    );
   } finally {
-
     setLoading(false);
-
   }
-    console.log('Password reset:', password);
-    // setIsPwdReset(true);
-      // logic need to add 
-  };
-
+};
+  
   return (
     <div className='flex items-center justify-center min-h-screen md:px-30 w-full px-3 relative'>
 
@@ -58,6 +76,46 @@ function page() {
         
   
           onSubmit={handleSubmit} className='w-full h-full  bg-white p-6 rounded-lg shadow md:shadow-none  flex flex-col gap-5 flex-1'>
+              {/* error message */}
+                    {error && (
+                      <motion.div
+            
+                        initial={{
+                          opacity: 0,
+                          y: -15,
+                          scale: 0.95
+                        }}
+            
+                        animate={{
+                          opacity: 1,
+                          y: 0,
+                          scale: 1
+                        }}
+            
+                        exit={{
+                          opacity: 0,
+                          y: -15,
+                          scale: 0.95
+                        }}
+            
+                        transition={{
+                          duration: 0.3,
+                          ease: "easeInOut"
+                        }}
+            
+                        className='bg-red-50 border border-red-200 text-red-500
+                w-fit px-5 py-3 rounded-2xl flex gap-3
+                justify-center items-center shadow-sm'
+                      >
+            
+                        <FaExclamationTriangle className='text-red-500 text-lg' />
+            
+                        <p className='text-sm font-medium'>
+                          {error}
+                        </p>
+            
+                      </motion.div>
+                    )}
 
         <div className='mb-4'>
           <h1 className='text-2xl font-bold'>Enter new password</h1>
