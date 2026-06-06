@@ -13,7 +13,10 @@ connectDB();
 app.use(express.json());
 app.use(cors());
 
+// non protected ------(auth)-------------
 app.use("/api" , authRoute);
+
+// protected routes ----------- dashbord operations and reset pswd etc -----
 app.use("/api-protected",protect)
 
 app.listen(8080, () =>  {

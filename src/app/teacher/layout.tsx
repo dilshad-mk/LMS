@@ -1,6 +1,6 @@
 import React from 'react'
 
-function studentDashbordlayout({children}: {children: React.ReactNode}) {
+function teacherDashbordlayout({children}: {children: React.ReactNode}) {
   return (
        <div className='min-h-screen 
       '>
@@ -10,4 +10,4 @@ function studentDashbordlayout({children}: {children: React.ReactNode}) {
   )
 }
 
-export default studentDashbordlayout;
+export default teacherDashbordlayout;

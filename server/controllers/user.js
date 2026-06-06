@@ -19,16 +19,14 @@ exports.registerUser = async (req, res) => {
         //     return res.status(400).json({message : "All fields required!"})
         // };
 
-        // role validation 
-        if (!role) {
-            return res.status(400).json({ message: "Please select a role!" })
-        };
-        if (!["student", "teacher"].includes(role)) {
-  return res.status(400).json({
-    message: "Invalid role",
-  });
-}
 
+        if(role === "teacher" || role === "admin"){
+
+            return res.status(401).json({
+                message : "Autharizaion Denied!"
+            });
+        }
+       
 
         // user name validation
         if (!username) {
@@ -92,25 +90,20 @@ exports.registerUser = async (req, res) => {
 
         const hashedPassword = await bcrypt.hash(password, 10);
 
-        const status = role === "teacher" ? "pending" : "approved";
+
 
         // create user
-        const newUser = await User.create({ username, email, password: hashedPassword, role, status });
+        const newUser = await User.create({ username, email, password: hashedPassword, role });
 
         const userResponse = {
             _id: newUser._id,
             username: newUser.username,
             email: newUser.email,
-            role: newUser.role,
-            status: newUser.status
+            role: newUser.role
+           
         }
 
-        if (role === "teacher") {
-            return res.status(201).json({
-                message: "Teacher registration successful! Your account is pending for approval.",
-                userResponse
-            });
-        }
+     
 
         await OTP.deleteOne({ email }).sort({ createdAt: -1 });
 
@@ -151,17 +144,9 @@ exports.loginUser = async (req, res) => {
             });
         };
 
-        if (user.role === "teacher" && user.status === "pending") {
-            return res.status(403).json({
-                message: "Your account is pending for approval. Please wait for admin approval."
-            });
-        };
+      
 
-        if (user.role === "teacher" && user.status === "rejected") {
-            return res.status(401).json({
-                message: "Your request rejected by admin!"
-            })
-        }
+      
 
         // token creation 
         const token = generateToken(user._id);
@@ -175,7 +160,7 @@ exports.loginUser = async (req, res) => {
                 username: user.username,
                 email: user.email,
                 role: user.role,
-                status: user.status
+             
             },
             message: "Login successful"
         })

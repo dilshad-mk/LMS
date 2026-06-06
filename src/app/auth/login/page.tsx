@@ -63,7 +63,7 @@ function page() {
                   router.push("/teacher/Dashboard");
             }
             if(response.data.user.role === "admin"){
-                  router.push("/admin/Dashboard");
+                  router.push("/admin/dashboard");
                   console.log("admin logined")
             }
 

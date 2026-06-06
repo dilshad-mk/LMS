@@ -9,7 +9,7 @@ import { useRouter } from 'next/navigation';
 
 // icon importing from react lucid 
 import { GraduationCap, Eye, EyeOff, Presentation } from "lucide-react";
-import {AiOutlineLoading3Quarters } from "react-icons/ai"
+
 
 // icons inported from react icon 
 import { FcGoogle } from 'react-icons/fc';
@@ -27,7 +27,7 @@ function page() {
     email: "",
     password: "",
     confirmPassword: "",
-    role: "",
+    role: "student",
     otp: ""
   });
 
@@ -188,34 +188,7 @@ function page() {
           <h1 className='text-[40px] font-bold text-black'>Create Account</h1>
           <p className='text-sm text-neutral-500 font-semibold'>Sign up to continue your learning journey.</p>
 
-          {/* signu as ---- (teacher or student-) */}
-          <div className='flex items-center gap-3'>
-
-            <button
-              type='button'
-              onClick={() =>
-                setFormData({ ...formData, role: "student" })
-              }
-              className={`${formData.role === 'student' ? 'bg-[#ff715e] text-white' : 'border border-[#ff715e7b] text-[#333]'} flex flex-col items-center gap-1 px-4 py-3 rounded-2xl transition-all duration-200`}
-            >
-              <GraduationCap className={formData.role === 'student' ? 'text-white' : 'text-[#ff715e]'} />
-              <p className='text-[10px] font-semibold'>Student</p>
-              <p className='text-[8px]'>Learn & Grow</p>
-            </button>
-
-            <button
-              type='button'
-              onClick={() =>
-                setFormData({ ...formData, role: "teacher" })
-              }
-              className={`${formData.role === 'teacher' ? 'bg-[#ff715e] text-white' : 'border border-[#ff715e7b] text-[#333]'} flex flex-col items-center gap-1 px-4 py-3 rounded-2xl transition-all duration-200`}
-            >
-              <Presentation className={formData.role === 'teacher' ? 'text-white' : 'text-[#ff715e]'} />
-              <p className='text-[10px] font-semibold'>Teacher</p>
-              <p className='text-[8px]'>Teach & Inspire</p>
-            </button>
-
-          </div>
+         
 
         </div>
 

@@ -29,14 +29,11 @@ const userSchema = new mongoose.Schema({
             "teacher",
             "admin"
         ],
+        default : "student"
         
     },
 
-    status: {
-        type: String,
-        enum: ["pending","approved", "rejected"],
-        default: "approved"
-    }
+ 
 
 
 })
