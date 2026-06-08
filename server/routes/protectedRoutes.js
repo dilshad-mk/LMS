@@ -6,6 +6,7 @@ const protect = require('../middleware/authMiddleware');
 const {resetPasswordProtect} = require("../middleware/resetPasswordMiddleware");
 const {adminMiddleware} =require("../middleware/adminMiddleware");
 const {teacherMiddleware} =require("../middleware/teacherMiddleware");
+const upload = require("../middleware/imageUpload");
 
 // controllers import
 const {addCourse} = require("../controllers/CoursesControllers/addCourse");
@@ -13,7 +14,10 @@ const {addLesson} =require ("../controllers/CoursesControllers/addLessons");
 const {addSession} = require("../controllers/CoursesControllers/addSession");
 const {enrollCourse} = require("../controllers/Enrolement/enrollCourse");
 const {addTeacher} =require("../controllers/createTeacher/addTeacher");
-
+const {updateSession} =require("../controllers/CoursesControllers/updateSession");
+const {deleteSession} = require("../controllers/CoursesControllers/deleteSession");
+const {deleteLesson} = require("../controllers/CoursesControllers/deleteLesson");
+const {updateLesson} = require("../controllers/CoursesControllers/updateLesson");
 
 const route = express.Router();
 
@@ -22,10 +26,14 @@ route.get("/me",protect,getme);
 route.post("/reset-pswd", resetPasswordProtect,resetPswd);
 
 // admin actions ---------------
-route.post("/addCourse",adminMiddleware,addCourse);
+route.post("/addCourse",adminMiddleware,upload.single("thumbnail"),addCourse);
 route.post("/addSession",adminMiddleware,addSession);
 route.post("/addLesson",adminMiddleware,addLesson);
 route.post("/addTeacher",adminMiddleware,addTeacher);
+route.put("/updateSession/:id",adminMiddleware,updateSession);
+route.delete("/deleteSession/:id",adminMiddleware,deleteSession);
+route.delete("/deleteLesson/:id",adminMiddleware,deleteLesson);
+route.put("/updateLesson/:id",adminMiddleware,updateLesson);
 
 // teacher action -------
 route.post("/enrollCourse",teacherMiddleware,enrollCourse);

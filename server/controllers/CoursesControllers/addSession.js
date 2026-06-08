@@ -3,11 +3,24 @@ const Session = require ("../../models/Courses/session");
 exports.addSession = async (req,res) => {
 
     try{
-        const {title,courseId} = req.body;
+        const {title,courseId,sessionOrder} = req.body;
+
+      const existingSession = await Session.findOne({
+        sessionOrder
+      });
+
+      if(existingSession){
+        return res.status(400).json({
+            message : `Session order ${sessionOrder} is already belongs to "${existingSession.title}"  chose another order index or update "${existingSession.title}" order`
+        })
+      }
+
+
 
         const newSession = await Session.create({
             title,
-            courseId
+            courseId,
+            sessionOrder : sessionCount + 1
 
         });
         res.status(200).json({

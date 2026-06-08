@@ -1,14 +1,19 @@
 const Course = require("../../models/Courses/course");
+const uploadToCloudinary = require("../../utils/uploadTocloudinary");
 
 exports.addCourse = async (req,res) => {
 
     try{
-        const {title,description,thumbnail,createdBy} = req.body;
+        const {title,description,createdBy} = req.body;
+
+        const thumbnail = req.file;
+
+        const uploadedImage = await uploadToCloudinary(thumbnail.buffer,"course-thumbnails");
 
         const newCourse = await Course.create({
             title,
             description,
-            thumbnail,
+            thumbnail: uploadedImage.secure_url,
             createdBy
         });
 

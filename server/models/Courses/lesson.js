@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 
 
 
+
 const lessonSchema = new mongoose.Schema({
 title :{
     type : String,
@@ -21,6 +22,11 @@ videoUrl : {
 sessionId  : {
     type :  mongoose.Schema.Types.ObjectId,
     ref : "Session"
+},
+lessonOrder : {
+    type : Number,
+    required : true,   
+     unique: true,
 }
 
 });
