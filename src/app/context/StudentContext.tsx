@@ -2,9 +2,9 @@
 
 import { createContext, useContext } from "react";
 
-export const UserContext = createContext<any>(null);
+export const StudentContext = createContext<any>(null);
 
-export const useUser = () => useContext(UserContext);
+export const useUser = () => useContext(StudentContext);
 
 export function UserProvider({
   children,
@@ -14,8 +14,8 @@ export function UserProvider({
   value: any;
 }) {
   return (
-    <UserContext.Provider value={value}>
+    <StudentContext.Provider value={value}>
       {children}
-    </UserContext.Provider>
+    </StudentContext.Provider>
   );
 }

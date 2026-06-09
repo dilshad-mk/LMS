@@ -3,6 +3,7 @@ const bcrypt = require("bcrypt");
 const { generateToken } = require("../utils/generateToken")
 const User = require("../models/user");
 const OTP = require("../models/otp");
+const Enrollment = require("../models/Enrollment/enrollment")
 
 const validator = require("validator");
 
@@ -147,6 +148,7 @@ exports.loginUser = async (req, res) => {
       
 
       
+     
 
         // token creation 
         const token = generateToken(user._id);
@@ -162,6 +164,7 @@ exports.loginUser = async (req, res) => {
                 role: user.role,
              
             },
+            
             message: "Login successful"
         })
 
@@ -279,7 +282,9 @@ exports.getme = async (req, res) => {
             req.user.id
         ).select("-password");
 
-        res.status(200).json(user)
+        const courseData = await Enrollment.findOne({studentId: user.id})
+
+        res.status(200).json({user,courseData})
     } catch (error) {
         res.status(500).json({
             error: error.message

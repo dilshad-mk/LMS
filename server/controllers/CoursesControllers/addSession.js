@@ -20,7 +20,7 @@ exports.addSession = async (req,res) => {
         const newSession = await Session.create({
             title,
             courseId,
-            sessionOrder : sessionCount + 1
+            sessionOrder
 
         });
         res.status(200).json({

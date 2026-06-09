@@ -18,6 +18,8 @@ const {updateSession} =require("../controllers/CoursesControllers/updateSession"
 const {deleteSession} = require("../controllers/CoursesControllers/deleteSession");
 const {deleteLesson} = require("../controllers/CoursesControllers/deleteLesson");
 const {updateLesson} = require("../controllers/CoursesControllers/updateLesson");
+const {updateStudentProgress} = require("../controllers/studentProgress/studentProgress")
+const {getUserCourse} = require("../controllers/getCourseDeatails/getMyCourse")
 
 const route = express.Router();
 
@@ -37,5 +39,12 @@ route.put("/updateLesson/:id",adminMiddleware,updateLesson);
 
 // teacher action -------
 route.post("/enrollCourse",teacherMiddleware,enrollCourse);
+
+// progress updation 
+route.post("/updateStudentProgress",protect,updateStudentProgress);
+
+//get course data
+route.get("/getUserCourse/:courseId",protect,getUserCourse);
+
 
 module.exports = route
